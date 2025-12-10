@@ -271,3 +271,5 @@ GITHUB_TOKEN=your_token_here
 
 이 과제 구현 및 README 작성에 사용한 ChatGPT 프롬프트는  
 `prompts/used_prompts.md` 파일에 정리했습니다.
+
+--
