@@ -18,18 +18,26 @@ GitHub 사용자 검색 API를 활용하여
 ### 1-1. 환경 요구사항
 
 - Node.js **v18 이상** 권장
-- npm (또는 pnpm / yarn, 예시는 npm 기준)
+- **pnpm** (패키지 매니저, v8 이상 권장)
+
+#### 1-1-1. pnpm 설치 방법
+
+```bash
+npm install -g pnpm
+```
+
+pnpm 설치 후, 프로젝트 루트에서 아래 명령들을 사용할 수 있습니다.
 
 ### 1-2. 의존성 설치
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 1-3. 개발 서버 실행 (로컬 개발)
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 - 기본 접속 주소: http://localhost:3000
@@ -38,16 +46,16 @@ npm run dev
 
 ```bash
 # 프로덕션 빌드
-npm run build
+pnpm build
 
 # 빌드 결과 실행
-npm start
+pnpm start
 ```
 
 ### 1-5. 단위 / 통합 테스트 (Jest + React Testing Library)
 
 ```bash
-npm test
+pnpm test
 ```
 
 사용 라이브러리:
@@ -68,22 +76,22 @@ npm test
 #### Headless 모드 전체 실행
 
 ```bash
-npm run test:e2e
+pnpm test:e2e
 ```
 
 - `start-server-and-test`를 사용하여
-  - `npm run dev`로 개발 서버를 기동한 뒤
+  - `pnpm dev`로 개발 서버를 기동한 뒤
   - `http://localhost:3000` 응답을 확인하면
-  - `npm run cy:run`으로 Cypress E2E 테스트를 headless 모드로 실행합니다.
+  - `pnpm cy:run`으로 Cypress E2E 테스트를 headless 모드로 실행합니다.
 
 #### Cypress GUI 실행
 
 ```bash
 # 1) 개발 서버 실행
-npm run dev
+pnpm dev
 
 # 2) 다른 터미널에서 Cypress GUI 실행
-npm run cy:open
+pnpm cy:open
 ```
 
 - Cypress 앱에서 개별 스펙 파일(`*.cy.ts`)을 선택해 실행/디버깅할 수 있습니다.
@@ -105,6 +113,8 @@ GITHUB_TOKEN=your_token_here
 ```ts
 // Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
 ```
+
+(토큰 값은 레포지토리에 커밋하지 않습니다.)
 
 ---
 
@@ -130,6 +140,7 @@ GITHUB_TOKEN=your_token_here
     - `SpinnerOverlay` : 전역 로딩 스피너
 - `globals.css`
   - Tailwind 초기 설정 및 공통 스타일 정의.
+  - 폰트 설정: `-apple-system` → `Noto Sans KR` → `sans-serif` 순으로 폴백.
 
 ### 2-3. 메인 페이지 (`app/page.tsx`)
 
@@ -165,11 +176,20 @@ GITHUB_TOKEN=your_token_here
 
 - 기본 검색어: 계정 이름, 성명 또는 메일
 - 타입: `type:user` / `type:org`
-- 리포지토리 수: `repos:min..max`, `repos:>=min`, `repos:<=max`
+- 리포지토리 수:
+  - `repos:min..max`
+  - `repos:>=min`
+  - `repos:<=max`
 - 위치: `location:{값}`
 - 언어: `language:{값}`
-- 생성일: `created:from..to`, `created:>=from`, `created:<=to`
-- 팔로워 수: `followers:min..max`, `followers:>=min`, `followers:<=max`
+- 생성일:
+  - `created:from..to`
+  - `created:>=from`
+  - `created:<=to`
+- 팔로워 수:
+  - `followers:min..max`
+  - `followers:>=min`
+  - `followers:<=max`
 - 후원 가능 여부: `sponsorable:true`
 
 검색어가 비어 있으면 `검색어가 없습니다.` 메시지를 보여주고 검색을 수행하지 않습니다.  
@@ -188,10 +208,14 @@ GITHUB_TOKEN=your_token_here
   3. 응답에 `error: 'rate_limit'`가 포함되면
      - `isRetryData = true`, `isRetrySecond = wait` 로 설정 후
      - 카운트다운 오버레이를 통해 일정 시간 후 동일 요청을 재실행.
+  4. 정상 응답 시
+     - `totalCount`, `limit`, `remaining` 업데이트
+     - `userList`에 누적 추가
+     - `hasNext`는 `totalCount > userList.length` 기준으로 결정
 
 #### 레이트 리밋 대기 / 재시도 (`CountdownSpinner.tsx`)
 
-- inline Web Worker를 생성하여 1초마다 남은 시간을 줄여가며 메인 스레드에 전달. (다른 탭을 열었을때 정상적으로 interval이 동작하기 위함.)
+- inline Web Worker를 생성하여 1초마다 남은 시간을 줄여가며 메인 스레드에 전달 (다른 탭을 열었을 때도 정상적으로 interval 이 동작하도록 하기 위함).
 - `{remainSeconds}초 후 다시 시도합니다...` 문구와 함께 MUI `CircularProgress`를 가운데에 띄움.
 - 남은 시간이 0이 되면 Worker를 종료하고 콜백 함수(`callbackFunc`)를 호출하여 API 재요청.
 
@@ -271,5 +295,3 @@ GITHUB_TOKEN=your_token_here
 
 이 과제 구현 및 README 작성에 사용한 ChatGPT 프롬프트는  
 `prompts/used_prompts.md` 파일에 정리했습니다.
-
----
