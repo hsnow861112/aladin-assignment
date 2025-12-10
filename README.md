@@ -1,4 +1,4 @@
-# aladin-assignment
+# aladin-assignment(권용수)
 
 GitHub 사용자 검색 API를 활용하여
 
